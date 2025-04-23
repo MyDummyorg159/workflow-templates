@@ -1,0 +1,44 @@
+name: Reusable C Code Compilation and Analysis Workflow
+
+on:
+  workflow_call:
+    inputs:
+      c_file:
+        description: "Path to the C file to compile"
+        required: true
+        type: string
+      cppcheck_options:
+        description: "Options for Cppcheck static analysis"
+        required: false
+        type: string
+        default: "--enable=all"
+
+jobs:
+  build-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Install GCC and Cppcheck
+      - name: Install GCC and Cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc cppcheck
+
+      # Step 3: Compile the C code
+      - name: Compile C Code
+        run: |
+          gcc -o sample ${{ inputs.c_file }}
+
+      # Step 4: Run the compiled program
+      - name: Run Compiled Program
+        run: |
+          ./sample
+
+      # Step 5: Perform static code analysis
+      - name: Run Static Code Analysis
+        run: |
+          cppcheck ${{ inputs.cppcheck_options }} ${{ inputs.c_file }}
